@@ -5,96 +5,374 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaroAI</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
         }
 
 ```
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        color: white;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
     .container {
-        max-width: 500px;
+        max-width: 600px;
         margin: 0 auto;
     }
     
     .header {
         text-align: center;
         margin-bottom: 30px;
+        animation: fadeIn 0.6s;
     }
     
     .logo {
         font-size: 80px;
+        margin-bottom: 10px;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
     }
     
     .title {
-        font-size: 40px;
+        font-size: 48px;
         font-weight: bold;
-        margin: 10px 0;
+        background: linear-gradient(45deg, #ffd89b, #19547b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 16px;
     }
     
     .card {
-        background: rgba(255,255,255,0.2);
-        border-radius: 20px;
-        padding: 20px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 25px;
         margin: 15px 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        animation: slideUp 0.4s;
     }
     
-    button {
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    h2 {
+        margin-bottom: 20px;
+        font-size: 22px;
+    }
+    
+    .spread-btn {
         width: 100%;
-        padding: 15px;
-        margin: 10px 0;
-        background: rgba(255,255,255,0.3);
+        padding: 18px;
+        margin: 12px 0;
+        background: linear-gradient(135deg, rgba(138,43,226,0.3), rgba(255,105,180,0.3));
         border: none;
-        border-radius: 15px;
+        border-radius: 20px;
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
     }
     
-    button:hover {
-        background: rgba(255,255,255,0.4);
-        transform: scale(1.02);
+    .spread-btn:hover, .spread-btn:active {
+        background: linear-gradient(135deg, rgba(138,43,226,0.5), rgba(255,105,180,0.5));
+        transform: scale(1.03);
+    }
+    
+    .spread-info {
+        flex: 1;
+    }
+    
+    .spread-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .spread-desc {
+        font-size: 13px;
+        opacity: 0.8;
+    }
+    
+    .spread-count {
+        font-size: 24px;
+        color: #ffd700;
     }
     
     .primary-btn {
+        width: 100%;
+        padding: 16px;
         background: linear-gradient(135deg, #ffd89b, #f093fb);
+        border: none;
+        border-radius: 20px;
         color: #333;
+        font-size: 18px;
         font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
     
-    input {
-        width: 100%;
-        padding: 12px;
-        margin: 10px 0;
+    .primary-btn:hover, .primary-btn:active {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    
+    .back-btn {
+        background: none;
         border: none;
-        border-radius: 10px;
+        color: rgba(255,255,255,0.8);
         font-size: 16px;
-        box-sizing: border-box;
+        cursor: pointer;
+        margin-bottom: 20px;
+        padding: 10px 0;
+    }
+    
+    .back-btn:hover {
+        color: white;
+    }
+    
+    input, textarea {
+        width: 100%;
+        padding: 14px;
+        margin: 10px 0 20px 0;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 15px;
+        color: white;
+        font-size: 16px;
+        font-family: inherit;
+    }
+    
+    input::placeholder, textarea::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+    
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.15);
     }
     
     .card-display {
         text-align: center;
-        margin: 20px 0;
+        margin: 25px 0;
     }
     
     .tarot-card {
         display: inline-block;
-        width: 100px;
-        height: 150px;
-        background: rgba(255,255,255,0.9);
+        width: 110px;
+        height: 160px;
+        background: rgba(255,255,255,0.1);
         border-radius: 15px;
-        margin: 10px;
+        margin: 8px;
+        font-size: 70px;
+        line-height: 160px;
+        transition: all 0.5s;
+        animation: cardPulse 1.5s infinite;
+    }
+    
+    .tarot-card.drawn {
+        background: linear-gradient(135deg, #ffd89b, #f093fb);
+        animation: cardAppear 0.5s;
+        transform: scale(1);
+    }
+    
+    @keyframes cardPulse {
+        0%, 100% { opacity: 0.3; transform: scale(0.95); }
+        50% { opacity: 0.7; transform: scale(1); }
+    }
+    
+    @keyframes cardAppear {
+        0% { opacity: 0; transform: scale(0.5) rotateY(180deg); }
+        100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+    }
+    
+    .card-info {
+        margin: 15px 0;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+    }
+    
+    .card-name {
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffd700;
+        margin-bottom: 5px;
+    }
+    
+    .card-keywords {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .interpretation {
+        line-height: 1.7;
+        font-size: 15px;
+    }
+    
+    .interpretation p {
+        margin-bottom: 15px;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .spinner {
         font-size: 60px;
-        line-height: 150px;
+        animation: spin 2s linear infinite;
+        display: inline-block;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
     
     .hidden {
         display: none;
+    }
+    
+    .nav-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .nav-btn {
+        flex: 1;
+        padding: 16px;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 15px;
+    }
+    
+    .nav-btn:hover, .nav-btn:active {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.03);
+    }
+    
+    .history-item, .learn-item {
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+    
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .history-spread {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .history-date {
+        font-size: 13px;
+        opacity: 0.7;
+    }
+    
+    .history-cards {
+        font-size: 32px;
+        margin: 12px 0;
+        letter-spacing: 5px;
+    }
+    
+    .history-question {
+        font-size: 14px;
+        font-style: italic;
+        opacity: 0.8;
+        margin-top: 8px;
+    }
+    
+    .learn-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .learn-emoji {
+        font-size: 50px;
+        min-width: 60px;
+        text-align: center;
+    }
+    
+    .learn-info {
+        flex: 1;
+    }
+    
+    .learn-name {
+        font-weight: 600;
+        font-size: 17px;
+        margin-bottom: 5px;
+    }
+    
+    .learn-keywords {
+        font-size: 14px;
+        opacity: 0.85;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+    }
+    
+    .empty-state-icon {
+        font-size: 70px;
+        margin-bottom: 15px;
+        opacity: 0.7;
+    }
+    
+    .empty-state-text {
+        opacity: 0.8;
+        font-size: 15px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        opacity: 0.9;
     }
 </style>
 ```
@@ -107,17 +385,56 @@
             <div class="header">
                 <div class="logo">🔮</div>
                 <div class="title">TaroAI</div>
-                <p>Мистические расклады Таро</p>
+                <div class="subtitle">Мистические расклады с AI</div>
             </div>
 
 ```
         <div class="card">
-            <h2>Выберите расклад:</h2>
-            <button onclick="selectSpread('daily', 1)">🌙 Карта дня</button>
-            <button onclick="selectSpread('three', 3)">⭐ Три карты</button>
-            <button onclick="selectSpread('love', 3)">💕 Любовь</button>
-            <button onclick="selectSpread('career', 3)">💼 Карьера</button>
-            <button onclick="selectSpread('finance', 3)">💰 Финансы</button>
+            <h2>✨ Выберите расклад</h2>
+            <button class="spread-btn" onclick="selectSpread('daily', 1, 'Карта дня', 'Энергия сегодняшнего дня')">
+                <div class="spread-info">
+                    <div class="spread-name">🌙 Карта дня</div>
+                    <div class="spread-desc">Энергия сегодняшнего дня</div>
+                </div>
+                <div class="spread-count">1 🃏</div>
+            </button>
+            
+            <button class="spread-btn" onclick="selectSpread('three', 3, 'Три карты', 'Прошлое, настоящее, будущее')">
+                <div class="spread-info">
+                    <div class="spread-name">⭐ Три карты</div>
+                    <div class="spread-desc">Прошлое, настоящее, будущее</div>
+                </div>
+                <div class="spread-count">3 🃏</div>
+            </button>
+            
+            <button class="spread-btn" onclick="selectSpread('love', 3, 'Любовь', 'Отношения и чувства')">
+                <div class="spread-info">
+                    <div class="spread-name">💕 Любовь</div>
+                    <div class="spread-desc">Отношения и чувства</div>
+                </div>
+                <div class="spread-count">3 🃏</div>
+            </button>
+            
+            <button class="spread-btn" onclick="selectSpread('career', 3, 'Карьера', 'Работа и профессия')">
+                <div class="spread-info">
+                    <div class="spread-name">💼 Карьера</div>
+                    <div class="spread-desc">Работа и профессия</div>
+                </div>
+                <div class="spread-count">3 🃏</div>
+            </button>
+            
+            <button class="spread-btn" onclick="selectSpread('finance', 3, 'Финансы', 'Денежная ситуация')">
+                <div class="spread-info">
+                    <div class="spread-name">💰 Финансы</div>
+                    <div class="spread-desc">Денежная ситуация</div>
+                </div>
+                <div class="spread-count">3 🃏</div>
+            </button>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="showHistory()">📜 История</button>
+            <button class="nav-btn" onclick="showLearn()">📖 Обучение</button>
         </div>
     </div>
 </div>
@@ -125,13 +442,18 @@
 <!-- Экран вопроса -->
 <div id="question-screen" class="hidden">
     <div class="container">
-        <button onclick="goBack()">← Назад</button>
+        <button class="back-btn" onclick="goHome()">← Назад</button>
         
         <div class="card">
             <h2 id="spread-title">Расклад</h2>
-            <p>Задайте свой вопрос (необязательно):</p>
+            <p id="spread-description" style="opacity: 0.9; margin-bottom: 25px;"></p>
+            
+            <label>Ваш вопрос (необязательно)</label>
             <input type="text" id="question-input" placeholder="О чем хотите узнать?">
-            <button class="primary-btn" onclick="drawCards()">✨ Вытянуть карты</button>
+            
+            <button class="primary-btn" onclick="startDrawing()">
+                ✨ Вытянуть карты
+            </button>
         </div>
     </div>
 </div>
@@ -139,101 +461,291 @@
 <!-- Экран с картами -->
 <div id="cards-screen" class="hidden">
     <div class="container">
-        <button onclick="goHome()">← Новый расклад</button>
+        <button class="back-btn" onclick="newReading()">← Новый расклад</button>
         
-        <h2 style="text-align: center;" id="result-title">Ваши карты</h2>
+        <h2 style="text-align: center; font-size: 24px; margin-bottom: 20px;" id="result-title">Ваши карты</h2>
         
         <div class="card-display" id="cards-container"></div>
         
-        <div class="card" id="interpretation"></div>
+        <div id="cards-info"></div>
+        
+        <div id="interpretation-container"></div>
+    </div>
+</div>
+
+<!-- Экран истории -->
+<div id="history-screen" class="hidden">
+    <div class="container">
+        <button class="back-btn" onclick="goHome()">← Назад</button>
+        
+        <h2 style="font-size: 26px; margin-bottom: 20px;">📜 История раскладов</h2>
+        
+        <div id="history-list"></div>
+    </div>
+</div>
+
+<!-- Экран обучения -->
+<div id="learn-screen" class="hidden">
+    <div class="container">
+        <button class="back-btn" onclick="goHome()">← Назад</button>
+        
+        <h2 style="font-size: 26px; margin-bottom: 20px;">📖 Старшие Арканы</h2>
+        
+        <div id="learn-list"></div>
     </div>
 </div>
 
 <script>
-    // Данные
-    const cards = [
-        {emoji: '🃏', name: 'Шут', text: 'Новое начало и свобода'},
-        {emoji: '🎩', name: 'Маг', text: 'Мастерство и действие'},
-        {emoji: '🔮', name: 'Жрица', text: 'Интуиция и тайна'},
-        {emoji: '👑', name: 'Императрица', text: 'Изобилие и творчество'},
-        {emoji: '🏛️', name: 'Император', text: 'Авторитет и контроль'},
-        {emoji: '⛪', name: 'Иерофант', text: 'Традиции и знание'},
-        {emoji: '💑', name: 'Влюбленные', text: 'Любовь и выбор'},
-        {emoji: '🏇', name: 'Колесница', text: 'Победа и движение'},
-        {emoji: '🦁', name: 'Сила', text: 'Мужество и терпение'},
-        {emoji: '🕯️', name: 'Отшельник', text: 'Мудрость и одиночество'},
-        {emoji: '🎡', name: 'Колесо Фортуны', text: 'Судьба и изменения'},
-        {emoji: '⚖️', name: 'Справедливость', text: 'Баланс и истина'},
-        {emoji: '🙃', name: 'Повешенный', text: 'Новая перспектива'},
-        {emoji: '💀', name: 'Смерть', text: 'Трансформация'},
-        {emoji: '🧘', name: 'Умеренность', text: 'Баланс и терпение'},
-        {emoji: '😈', name: 'Дьявол', text: 'Искушение'},
-        {emoji: '🏰', name: 'Башня', text: 'Разрушение иллюзий'},
-        {emoji: '⭐', name: 'Звезда', text: 'Надежда и вдохновение'},
-        {emoji: '🌙', name: 'Луна', text: 'Иллюзии и страхи'},
-        {emoji: '☀️', name: 'Солнце', text: 'Радость и успех'},
-        {emoji: '📯', name: 'Суд', text: 'Возрождение'},
-        {emoji: '🌍', name: 'Мир', text: 'Завершение и целостность'}
+    // Инициализация Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+    }
+
+    // Данные - полная колода из 22 старших арканов
+    const tarotCards = [
+        { id: 0, name: 'Шут', emoji: '🃏', keywords: 'новое начало, спонтанность, свобода', meaning: 'Время рисковать и быть открытым новому опыту. Шут призывает отпустить страхи и довериться жизни.' },
+        { id: 1, name: 'Маг', emoji: '🎩', keywords: 'мастерство, сила воли, действие', meaning: 'У вас есть все необходимое для достижения цели. Проявите инициативу и используйте свои таланты.' },
+        { id: 2, name: 'Верховная Жрица', emoji: '🔮', keywords: 'интуиция, тайна, внутренний голос', meaning: 'Прислушайтесь к своей интуиции, ответы внутри вас. Доверьтесь внутреннему знанию.' },
+        { id: 3, name: 'Императрица', emoji: '👑', keywords: 'изобилие, материнство, творчество', meaning: 'Период изобилия и роста. Заботьтесь о себе и творите красоту вокруг.' },
+        { id: 4, name: 'Император', emoji: '🏛️', keywords: 'авторитет, структура, контроль', meaning: 'Нужна структура и дисциплина в действиях. Возьмите ситуацию под контроль.' },
+        { id: 5, name: 'Иерофант', emoji: '⛪', keywords: 'традиции, знание, наставничество', meaning: 'Обратитесь к традиционным методам и мудрости. Возможно, стоит найти наставника.' },
+        { id: 6, name: 'Влюбленные', emoji: '💑', keywords: 'любовь, выбор, гармония', meaning: 'Важный выбор перед вами. Следуйте зову сердца и стремитесь к гармонии.' },
+        { id: 7, name: 'Колесница', emoji: '🏇', keywords: 'победа, контроль, движение вперед', meaning: 'Двигайтесь вперед с уверенностью и решимостью. Победа близка!' },
+        { id: 8, name: 'Сила', emoji: '🦁', keywords: 'мужество, терпение, внутренняя сила', meaning: 'Истинная сила в мягкости. Побеждайте любовью, терпением и состраданием.' },
+        { id: 9, name: 'Отшельник', emoji: '🕯️', keywords: 'одиночество, поиск истины, мудрость', meaning: 'Время для самопознания и внутренней работы. Уединение принесет ясность.' },
+        { id: 10, name: 'Колесо Фортуны', emoji: '🎡', keywords: 'судьба, изменения, циклы', meaning: 'Перемены неизбежны. Принимайте их с открытым сердцем - колесо судьбы поворачивается.' },
+        { id: 11, name: 'Справедливость', emoji: '⚖️', keywords: 'баланс, истина, карма', meaning: 'Справедливость восторжествует. Будьте честны и объективны в своих действиях.' },
+        { id: 12, name: 'Повешенный', emoji: '🙃', keywords: 'жертва, новая перспектива, пауза', meaning: 'Смените угол зрения. Иногда нужно отпустить, чтобы двигаться дальше.' },
+        { id: 13, name: 'Смерть', emoji: '💀', keywords: 'трансформация, окончание, новое начало', meaning: 'Завершение старого цикла освобождает место для нового. Примите перемены.' },
+        { id: 14, name: 'Умеренность', emoji: '🧘', keywords: 'баланс, терпение, умеренность', meaning: 'Найдите золотую середину. Избегайте крайностей и действуйте постепенно.' },
+        { id: 15, name: 'Дьявол', emoji: '😈', keywords: 'искушение, зависимость, материализм', meaning: 'Освободитесь от того, что вас сдерживает. Осознайте свои привязанности.' },
+        { id: 16, name: 'Башня', emoji: '🏰', keywords: 'разрушение, внезапные перемены, откровение', meaning: 'Разрушение иллюзий приведет к истине. Из хаоса рождается новое.' },
+        { id: 17, name: 'Звезда', emoji: '⭐', keywords: 'надежда, вдохновение, исцеление', meaning: 'Надежда и исцеление уже в пути к вам. Верьте в лучшее.' },
+        { id: 18, name: 'Луна', emoji: '🌙', keywords: 'иллюзии, подсознание, страхи', meaning: 'Разберитесь со своими страхами и иллюзиями. Не всё то, чем кажется.' },
+        { id: 19, name: 'Солнце', emoji: '☀️', keywords: 'радость, успех, позитив', meaning: 'Успех и радость освещают ваш путь. Время торжества и счастья!' },
+        { id: 20, name: 'Суд', emoji: '📯', keywords: 'возрождение, прощение, призвание', meaning: 'Время пробуждения и нового призвания. Простите прошлое и двигайтесь вперед.' },
+        { id: 21, name: 'Мир', emoji: '🌍', keywords: 'завершение, достижение, целостность', meaning: 'Вы достигли важной цели. Наслаждайтесь моментом и ощущением завершенности.' }
     ];
     
-    let currentSpread = {type: '', count: 0};
+    // Глобальные переменные
+    let currentSpread = { type: '', count: 0, name: '', description: '' };
     let drawnCards = [];
+    let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     
     // Функции навигации
     function goHome() {
+        hideAllScreens();
         document.getElementById('home-screen').classList.remove('hidden');
-        document.getElementById('question-screen').classList.add('hidden');
-        document.getElementById('cards-screen').classList.add('hidden');
     }
     
-    function goBack() {
-        document.getElementById('home-screen').classList.remove('hidden');
-        document.getElementById('question-screen').classList.add('hidden');
+    function hideAllScreens() {
+        document.querySelectorAll('[id$="-screen"]').forEach(screen => {
+            screen.classList.add('hidden');
+        });
     }
     
-    function selectSpread(type, count) {
-        currentSpread = {type, count};
+    function newReading() {
+        goHome();
+        document.getElementById('question-input').value = '';
+    }
+    
+    // Выбор расклада
+    function selectSpread(type, count, name, description) {
+        currentSpread = { type, count, name, description };
+        document.getElementById('spread-title').textContent = name;
+        document.getElementById('spread-description').textContent = description;
         
-        const titles = {
-            'daily': 'Карта дня',
-            'three': 'Три карты',
-            'love': 'Расклад на любовь',
-            'career': 'Расклад на карьеру',
-            'finance': 'Расклад на финансы'
-        };
-        
-        document.getElementById('spread-title').textContent = titles[type];
-        document.getElementById('home-screen').classList.add('hidden');
+        hideAllScreens();
         document.getElementById('question-screen').classList.remove('hidden');
     }
     
-    function drawCards() {
-        // Тасуем и вытягиваем карты
-        const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    // Вытягивание карт с анимацией
+    async function startDrawing() {
+        const question = document.getElementById('question-input').value;
+        
+        hideAllScreens();
+        document.getElementById('cards-screen').classList.remove('hidden');
+        document.getElementById('result-title').textContent = currentSpread.name;
+        
+        // Подготовка контейнера
+        const container = document.getElementById('cards-container');
+        container.innerHTML = '';
+        
+        // Создаем пустые карты
+        for (let i = 0; i < currentSpread.count; i++) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'tarot-card';
+            cardDiv.id = `card-${i}`;
+            cardDiv.textContent = '🎴';
+            container.appendChild(cardDiv);
+        }
+        
+        // Тасуем колоду
+        const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
         drawnCards = shuffled.slice(0, currentSpread.count);
         
-        // Показываем экран с картами
-        document.getElementById('question-screen').classList.add('hidden');
-        document.getElementById('cards-screen').classList.remove('hidden');
+        // Анимация появления карт
+        for (let i = 0; i < drawnCards.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const cardDiv = document.getElementById(`card-${i}`);
+            cardDiv.textContent = drawnCards[i].emoji;
+            cardDiv.classList.add('drawn');
+        }
         
-        // Отображаем карты
-        const container = document.getElementById('cards-container');
-        container.innerHTML = drawnCards.map(card => 
-            `<div class="tarot-card">${card.emoji}</div>`
-        ).join('');
+        // Показываем информацию о картах
+        await new Promise(resolve => setTimeout(resolve, 500));
+        displayCardsInfo();
         
-        // Создаем толкование
-        const interpretation = document.getElementById('interpretation');
-        interpretation.innerHTML = '<h3>✨ Толкование:</h3>' + 
-            drawnCards.map((card, i) => 
-                `<p><strong>${card.emoji} ${card.name}:</strong> ${card.text}</p>`
-            ).join('');
+        // Генерируем толкование
+        await new Promise(resolve => setTimeout(resolve, 300));
+        generateInterpretation(question);
+        
+        // Сохраняем в историю
+        saveToHistory(question);
     }
     
-    // Инициализация Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+    // Отображение информации о картах
+    function displayCardsInfo() {
+        const infoContainer = document.getElementById('cards-info');
+        infoContainer.innerHTML = `
+            <div class="card">
+                ${drawnCards.map(card => `
+                    <div class="card-info">
+                        <div class="card-name">${card.emoji} ${card.name}</div>
+                        <div class="card-keywords">${card.keywords}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Генерация толкования
+    function generateInterpretation(question) {
+        const positions = {
+            'daily': ['Карта дня'],
+            'three': ['Прошлое', 'Настоящее', 'Будущее'],
+            'love': ['Вы', 'Партнер', 'Отношения'],
+            'career': ['Текущая ситуация', 'Препятствия', 'Совет'],
+            'finance': ['Доходы', 'Расходы', 'Совет']
+        };
+        
+        const currentPositions = positions[currentSpread.type] || ['Карта'];
+        
+        let interpretation = '<div class="card"><h3 style="margin-bottom: 20px; font-size: 20px;">✨ Толкование расклада</h3><div class="interpretation">';
+        
+        if (question) {
+            interpretation += `<p><strong>Ваш вопрос:</strong> ${question}</p>`;
+        }
+        
+        interpretation += '<p>🔮 <strong>Карты раскрывают:</strong></p>';
+        
+        drawnCards.forEach((card, index) => {
+            const position = currentPositions[index] || `Позиция ${index + 1}`;
+            interpretation += `
+                <p><strong>${card.emoji} ${card.name}</strong> (${position})<br>
+                ${card.meaning}</p>
+            `;
+        });
+        
+        // Общий совет
+        interpretation += getGeneralAdvice();
+        
+        interpretation += '</div></div>';
+        
+        document.getElementById('interpretation-container').innerHTML = interpretation;
+    }
+    
+    // Общий совет на основе карт
+    function getGeneralAdvice() {
+        const advice = [
+            '<p><strong>💫 Общий совет:</strong> Карты указывают на важный момент в вашей жизни. Прислушайтесь к их посланию и действуйте мудро.</p>',
+            '<p><strong>💫 Общий совет:</strong> Доверяйте своей интуиции и будьте открыты переменам, которые карты предвещают.</p>',
+            '<p><strong>💫 Общий совет:</strong> Энергия этих карт направляет вас к росту и трансформации. Примите их послание с открытым сердцем.</p>',
+            '<p><strong>💫 Общий совет:</strong> Вселенная посылает вам знаки через эти карты. Внимательно отнеситесь к их значению.</p>'
+        ];
+        
+        return advice[Math.floor(Math.random() * advice.length)];
+    }
+    
+    // Сохранение в историю
+    function saveToHistory(question) {
+        const reading = {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            spreadType: currentSpread.type,
+            spreadName: currentSpread.name,
+            question: question,
+            cards: drawnCards.map(c => ({ emoji: c.emoji, name: c.name }))
+        };
+        
+        history.unshift(reading);
+        history = history.slice(0, 20); // Храним только 20 последних
+        localStorage.setItem('tarotHistory', JSON.stringify(history));
+    }
+    
+    // Показать историю
+    function showHistory() {
+        hideAllScreens();
+        document.getElementById('history-screen').classList.remove('hidden');
+        
+        const historyList = document.getElementById('history-list');
+        
+        if (history.length === 0) {
+            historyList.innerHTML = `
+                <div class="card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📜</div>
+                        <div class="empty-state-text">Пока нет сохраненных раскладов</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        historyList.innerHTML = history.map(reading => {
+            const date = new Date(reading.date);
+            const dateStr = date.toLocaleDateString('ru-RU', { 
+                day: 'numeric', 
+                month: 'long',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            return `
+                <div class="history-item">
+                    <div class="history-header">
+                        <div class="history-spread">${reading.spreadName}</div>
+                        <div class="history-date">${dateStr}</div>
+                    </div>
+                    <div class="history-cards">
+                        ${reading.cards.map(c => c.emoji).join(' ')}
+                    </div>
+                    ${reading.question ? `
+                        <div class="history-question">"${reading.question}"</div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Показать обучение
+    function showLearn() {
+        hideAllScreens();
+        document.getElementById('learn-screen').classList.remove('hidden');
+        
+        const learnList = document.getElementById('learn-list');
+        learnList.innerHTML = tarotCards.map(card => `
+            <div class="learn-item">
+                <div class="learn-emoji">${card.emoji}</div>
+                <div class="learn-info">
+                    <div class="learn-name">${card.name}</div>
+                    <div class="learn-keywords">${card.keywords}</div>
+                </div>
+            </div>
+        `).join('');
     }
 </script>
 ```
