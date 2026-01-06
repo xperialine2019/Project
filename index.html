@@ -1,100 +1,175 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TaroAI - Telegram Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        #root { width: 100%; min-height: 100vh; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+        #root { 
+            width: 100%; 
+            min-height: 100vh; 
+        }
+        .lucide { 
+            width: 1em; 
+            height: 1em; 
+            display: inline-block; 
+            vertical-align: middle; 
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { Moon, Star, Heart, Briefcase, TrendingUp, BookOpen, History, Sparkles } = lucide;
-const TarotApp = () => {
-const [view, setView] = useState(‘home’);
-const [selectedSpread, setSelectedSpread] = useState(null);
-const [drawnCards, setDrawnCards] = useState([]);
-const [isDrawing, setIsDrawing] = useState(false);
-const [interpretation, setInterpretation] = useState(’’);
-const [isLoading, setIsLoading] = useState(false);
-const [userQuestion, setUserQuestion] = useState(’’);
-const [history, setHistory] = useState([]);
-
-// Инициализация Telegram WebApp
-useEffect(() => {
-if (window.Telegram?.WebApp) {
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
-tg.enableClosingConfirmation();
-}
-}, []);
-
-// Упрощенная колода Таро (22 старших аркана)
-const tarotCards = [
-{ id: 0, name: ‘Шут’, emoji: ‘🃏’, keywords: ‘новое начало, спонтанность, свобода’ },
-{ id: 1, name: ‘Маг’, emoji: ‘🎩’, keywords: ‘мастерство, сила воли, действие’ },
-{ id: 2, name: ‘Верховная Жрица’, emoji: ‘🔮’, keywords: ‘интуиция, тайна, внутренний голос’ },
-{ id: 3, name: ‘Императрица’, emoji: ‘👑’, keywords: ‘изобилие, материнство, творчество’ },
-{ id: 4, name: ‘Император’, emoji: ‘🏛️’, keywords: ‘авторитет, структура, контроль’ },
-{ id: 5, name: ‘Иерофант’, emoji: ‘⛪’, keywords: ‘традиции, знание, наставничество’ },
-{ id: 6, name: ‘Влюбленные’, emoji: ‘💑’, keywords: ‘любовь, выбор, гармония’ },
-{ id: 7, name: ‘Колесница’, emoji: ‘🏇’, keywords: ‘победа, контроль, движение вперед’ },
-{ id: 8, name: ‘Сила’, emoji: ‘🦁’, keywords: ‘мужество, терпение, внутренняя сила’ },
-{ id: 9, name: ‘Отшельник’, emoji: ‘🕯️’, keywords: ‘одиночество, поиск истины, мудрость’ },
-{ id: 10, name: ‘Колесо Фортуны’, emoji: ‘🎡’, keywords: ‘судьба, изменения, циклы’ },
-{ id: 11, name: ‘Справедливость’, emoji: ‘⚖️’, keywords: ‘баланс, истина, карма’ },
-{ id: 12, name: ‘Повешенный’, emoji: ‘🙃’, keywords: ‘жертва, новая перспектива, пауза’ },
-{ id: 13, name: ‘Смерть’, emoji: ‘💀’, keywords: ‘трансформация, окончание, новое начало’ },
-{ id: 14, name: ‘Умеренность’, emoji: ‘🧘’, keywords: ‘баланс, терпение, умеренность’ },
-{ id: 15, name: ‘Дьявол’, emoji: ‘😈’, keywords: ‘искушение, зависимость, материализм’ },
-{ id: 16, name: ‘Башня’, emoji: ‘🏰’, keywords: ‘разрушение, внезапные перемены, откровение’ },
-{ id: 17, name: ‘Звезда’, emoji: ‘⭐’, keywords: ‘надежда, вдохновение, исцеление’ },
-{ id: 18, name: ‘Луна’, emoji: ‘🌙’, keywords: ‘иллюзии, подсознание, страхи’ },
-{ id: 19, name: ‘Солнце’, emoji: ‘☀️’, keywords: ‘радость, успех, позитив’ },
-{ id: 20, name: ‘Суд’, emoji: ‘📯’, keywords: ‘возрождение, прощение, призвание’ },
-{ id: 21, name: ‘Мир’, emoji: ‘🌍’, keywords: ‘завершение, достижение, целостность’ }
-];
-
-// Типы раскладов
-const spreads = [
-{ id: ‘daily’, name: ‘Карта дня’, icon: Moon, cards: 1, description: ‘Энергия сегодняшнего дня’ },
-{ id: ‘three’, name: ‘Три карты’, icon: Star, cards: 3, description: ‘Прошлое, настоящее, будущее’ },
-{ id: ‘love’, name: ‘Любовь’, icon: Heart, cards: 3, description: ‘Отношения и чувства’ },
-{ id: ‘career’, name: ‘Карьера’, icon: Briefcase, cards: 3, description: ‘Работа и профессия’ },
-{ id: ‘finance’, name: ‘Финансы’, icon: TrendingUp, cards: 3, description: ‘Денежная ситуация’ }
-];
-
-// Получение AI интерпретации
-const getAIInterpretation = async (cards, spreadType, question) => {
-setIsLoading(true);
 
 ```
-try {
-  const cardDescriptions = cards.map((card, idx) => 
-    `Позиция ${idx + 1}: ${card.name} (${card.keywords})`
-  ).join('\n');
+<script type="text/babel">
+    const { useState, useEffect } = React;
 
-  const spreadContext = {
-    daily: 'карта дня, общая энергия',
-    three: 'Прошлое - Настоящее - Будущее',
-    love: 'Вы - Партнер - Отношения',
-    career: 'Текущая ситуация - Препятствия - Совет',
-    finance: 'Доходы - Расходы - Совет'
-  };
+    // Lucide Icons как SVG компоненты
+    const Moon = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+    );
 
-  const prompt = `Ты опытный таролог. Проинтерпретируй расклад Таро:
+    const Star = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+    );
+
+    const Heart = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        </svg>
+    );
+
+    const Briefcase = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+    );
+
+    const TrendingUp = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+            <polyline points="16 7 22 7 22 13"/>
+        </svg>
+    );
+
+    const BookOpen = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+    );
+
+    const History = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M12 7v5l4 2"/>
+        </svg>
+    );
+
+    const Sparkles = () => (
+        <svg className="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            <path d="M5 3v4"/>
+            <path d="M19 17v4"/>
+            <path d="M3 5h4"/>
+            <path d="M17 19h4"/>
+        </svg>
+    );
+
+    const TarotApp = () => {
+      const [view, setView] = useState('home');
+      const [selectedSpread, setSelectedSpread] = useState(null);
+      const [drawnCards, setDrawnCards] = useState([]);
+      const [isDrawing, setIsDrawing] = useState(false);
+      const [interpretation, setInterpretation] = useState('');
+      const [isLoading, setIsLoading] = useState(false);
+      const [userQuestion, setUserQuestion] = useState('');
+      const [history, setHistory] = useState([]);
+
+      // Инициализация Telegram WebApp
+      useEffect(() => {
+        if (window.Telegram?.WebApp) {
+          const tg = window.Telegram.WebApp;
+          tg.ready();
+          tg.expand();
+          tg.enableClosingConfirmation();
+        }
+      }, []);
+
+      // Упрощенная колода Таро (22 старших аркана)
+      const tarotCards = [
+        { id: 0, name: 'Шут', emoji: '🃏', keywords: 'новое начало, спонтанность, свобода' },
+        { id: 1, name: 'Маг', emoji: '🎩', keywords: 'мастерство, сила воли, действие' },
+        { id: 2, name: 'Верховная Жрица', emoji: '🔮', keywords: 'интуиция, тайна, внутренний голос' },
+        { id: 3, name: 'Императрица', emoji: '👑', keywords: 'изобилие, материнство, творчество' },
+        { id: 4, name: 'Император', emoji: '🏛️', keywords: 'авторитет, структура, контроль' },
+        { id: 5, name: 'Иерофант', emoji: '⛪', keywords: 'традиции, знание, наставничество' },
+        { id: 6, name: 'Влюбленные', emoji: '💑', keywords: 'любовь, выбор, гармония' },
+        { id: 7, name: 'Колесница', emoji: '🏇', keywords: 'победа, контроль, движение вперед' },
+        { id: 8, name: 'Сила', emoji: '🦁', keywords: 'мужество, терпение, внутренняя сила' },
+        { id: 9, name: 'Отшельник', emoji: '🕯️', keywords: 'одиночество, поиск истины, мудрость' },
+        { id: 10, name: 'Колесо Фортуны', emoji: '🎡', keywords: 'судьба, изменения, циклы' },
+        { id: 11, name: 'Справедливость', emoji: '⚖️', keywords: 'баланс, истина, карма' },
+        { id: 12, name: 'Повешенный', emoji: '🙃', keywords: 'жертва, новая перспектива, пауза' },
+        { id: 13, name: 'Смерть', emoji: '💀', keywords: 'трансформация, окончание, новое начало' },
+        { id: 14, name: 'Умеренность', emoji: '🧘', keywords: 'баланс, терпение, умеренность' },
+        { id: 15, name: 'Дьявол', emoji: '😈', keywords: 'искушение, зависимость, материализм' },
+        { id: 16, name: 'Башня', emoji: '🏰', keywords: 'разрушение, внезапные перемены, откровение' },
+        { id: 17, name: 'Звезда', emoji: '⭐', keywords: 'надежда, вдохновение, исцеление' },
+        { id: 18, name: 'Луна', emoji: '🌙', keywords: 'иллюзии, подсознание, страхи' },
+        { id: 19, name: 'Солнце', emoji: '☀️', keywords: 'радость, успех, позитив' },
+        { id: 20, name: 'Суд', emoji: '📯', keywords: 'возрождение, прощение, призвание' },
+        { id: 21, name: 'Мир', emoji: '🌍', keywords: 'завершение, достижение, целостность' }
+      ];
+
+      // Типы раскладов
+      const spreads = [
+        { id: 'daily', name: 'Карта дня', icon: Moon, cards: 1, description: 'Энергия сегодняшнего дня' },
+        { id: 'three', name: 'Три карты', icon: Star, cards: 3, description: 'Прошлое, настоящее, будущее' },
+        { id: 'love', name: 'Любовь', icon: Heart, cards: 3, description: 'Отношения и чувства' },
+        { id: 'career', name: 'Карьера', icon: Briefcase, cards: 3, description: 'Работа и профессия' },
+        { id: 'finance', name: 'Финансы', icon: TrendingUp, cards: 3, description: 'Денежная ситуация' }
+      ];
+
+      // Получение AI интерпретации
+      const getAIInterpretation = async (cards, spreadType, question) => {
+        setIsLoading(true);
+        
+        try {
+          const cardDescriptions = cards.map((card, idx) => 
+            `Позиция ${idx + 1}: ${card.name} (${card.keywords})`
+          ).join('\n');
+
+          const spreadContext = {
+            daily: 'карта дня, общая энергия',
+            three: 'Прошлое - Настоящее - Будущее',
+            love: 'Вы - Партнер - Отношения',
+            career: 'Текущая ситуация - Препятствия - Совет',
+            finance: 'Доходы - Расходы - Совет'
+          };
+
+          const prompt = `Ты опытный таролог. Проинтерпретируй расклад Таро:
 ```
 
 Тип расклада: ${spreadType} (${spreadContext[spreadType]})
@@ -106,382 +181,359 @@ ${cardDescriptions}
 Дай краткую, но глубокую интерпретацию (3-4 абзаца). Будь мистичным, проницательным и позитивным. Говори от первого лица (“Я вижу…”). Используй эмодзи для атмосферы.`;
 
 ```
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  });
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 1000,
+              messages: [{ role: 'user', content: prompt }]
+            })
+          });
 
-  const data = await response.json();
-  const aiResponse = data.content[0].text;
-  
-  setInterpretation(aiResponse);
-  
-  // Сохраняем в историю
-  const reading = {
-    id: Date.now(),
-    date: new Date().toISOString(),
-    spreadType,
-    question,
-    cards,
-    interpretation: aiResponse
-  };
-  
-  setHistory(prev => [reading, ...prev].slice(0, 10));
-  
-} catch (error) {
-  setInterpretation('✨ Карты говорят:\n\n' + cards.map((card, idx) => 
-    `${card.emoji} **${card.name}**: ${card.keywords}. ${getBasicMeaning(card, idx, spreadType)}`
-  ).join('\n\n'));
-}
+          const data = await response.json();
+          const aiResponse = data.content[0].text;
+          
+          setInterpretation(aiResponse);
+          
+          // Сохраняем в историю
+          const reading = {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            spreadType,
+            question,
+            cards,
+            interpretation: aiResponse
+          };
+          
+          setHistory(prev => [reading, ...prev].slice(0, 10));
+          
+        } catch (error) {
+          setInterpretation('✨ Карты говорят:\n\n' + cards.map((card, idx) => 
+            `${card.emoji} **${card.name}**: ${card.keywords}. ${getBasicMeaning(card, idx, spreadType)}`
+          ).join('\n\n'));
+        }
+        
+        setIsLoading(false);
+      };
 
-setIsLoading(false);
-```
+      // Базовая интерпретация без AI
+      const getBasicMeaning = (card, position, spreadType) => {
+        const meanings = {
+          0: 'Время рисковать и быть открытым новому опыту.',
+          1: 'У вас есть все необходимое для достижения цели.',
+          2: 'Прислушайтесь к своей интуиции, ответы внутри вас.',
+          3: 'Период изобилия и роста, заботьтесь о себе.',
+          4: 'Нужна структура и дисциплина в действиях.',
+          5: 'Обратитесь к традиционным методам и мудрости.',
+          6: 'Важный выбор, следуйте зову сердца.',
+          7: 'Двигайтесь вперед с уверенностью и решимостью.',
+          8: 'Сила в мягкости, побеждайте любовью.',
+          9: 'Время для самопознания и внутренней работы.',
+          10: 'Перемены неизбежны, принимайте их с открытым сердцем.',
+          11: 'Справедливость восторжествует, будьте честны.',
+          12: 'Смените угол зрения, посмотрите с другой стороны.',
+          13: 'Завершение старого цикла, освободите место для нового.',
+          14: 'Найдите золотую середину, избегайте крайностей.',
+          15: 'Освободитесь от того, что вас сдерживает.',
+          16: 'Разрушение иллюзий приведет к истине.',
+          17: 'Надежда и исцеление уже в пути к вам.',
+          18: 'Разберитесь со своими страхами и иллюзиями.',
+          19: 'Успех и радость освещают ваш путь.',
+          20: 'Время пробуждения и нового призвания.',
+          21: 'Вы достигли важной цели, наслаждайтесь моментом.'
+        };
+        return meanings[card.id] || 'Эта карта несет важное послание для вас.';
+      };
 
-};
+      // Вытягивание карт
+      const drawCards = async (spread) => {
+        setIsDrawing(true);
+        setDrawnCards([]);
+        setInterpretation('');
+        
+        const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
+        const drawn = shuffled.slice(0, spread.cards);
+        
+        for (let i = 0; i < drawn.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setDrawnCards(prev => [...prev, drawn[i]]);
+        }
+        
+        setIsDrawing(false);
+        await getAIInterpretation(drawn, spread.id, userQuestion);
+      };
 
-// Базовая интерпретация без AI
-const getBasicMeaning = (card, position, spreadType) => {
-const meanings = {
-0: ‘Время рисковать и быть открытым новому опыту.’,
-1: ‘У вас есть все необходимое для достижения цели.’,
-2: ‘Прислушайтесь к своей интуиции, ответы внутри вас.’,
-3: ‘Период изобилия и роста, заботьтесь о себе.’,
-4: ‘Нужна структура и дисциплина в действиях.’,
-5: ‘Обратитесь к традиционным методам и мудрости.’,
-6: ‘Важный выбор, следуйте зову сердца.’,
-7: ‘Двигайтесь вперед с уверенностью и решимостью.’,
-8: ‘Сила в мягкости, побеждайте любовью.’,
-9: ‘Время для самопознания и внутренней работы.’,
-10: ‘Перемены неизбежны, принимайте их с открытым сердцем.’,
-11: ‘Справедливость восторжествует, будьте честны.’,
-12: ‘Смените угол зрения, посмотрите с другой стороны.’,
-13: ‘Завершение старого цикла, освободите место для нового.’,
-14: ‘Найдите золотую середину, избегайте крайностей.’,
-15: ‘Освободитесь от того, что вас сдерживает.’,
-16: ‘Разрушение иллюзий приведет к истине.’,
-17: ‘Надежда и исцеление уже в пути к вам.’,
-18: ‘Разберитесь со своими страхами и иллюзиями.’,
-19: ‘Успех и радость освещают ваш путь.’,
-20: ‘Время пробуждения и нового призвания.’,
-21: ‘Вы достигли важной цели, наслаждайтесь моментом.’
-};
-return meanings[card.id] || ‘Эта карта несет важное послание для вас.’;
-};
+      // Главный экран
+      const HomeView = () => (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+          <div className="max-w-md mx-auto">
+            <div className="text-center mb-8">
+              <div className="text-6xl mb-4">🔮</div>
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-200 to-pink-200 bg-clip-text text-transparent">
+                TaroAI
+              </h1>
+              <p className="text-purple-200">Мистические расклады с AI</p>
+            </div>
 
-// Вытягивание карт
-const drawCards = async (spread) => {
-setIsDrawing(true);
-setDrawnCards([]);
-setInterpretation(’’);
-
-```
-// Анимация вытягивания карт
-const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
-const drawn = shuffled.slice(0, spread.cards);
-
-for (let i = 0; i < drawn.length; i++) {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  setDrawnCards(prev => [...prev, drawn[i]]);
-}
-
-setIsDrawing(false);
-
-// Получаем интерпретацию
-await getAIInterpretation(drawn, spread.id, userQuestion);
-```
-
-};
-
-// Главный экран
-const HomeView = () => (
-<div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-<div className="max-w-md mx-auto">
-<div className="text-center mb-8">
-<div className="text-6xl mb-4">🔮</div>
-<h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-200 to-pink-200 bg-clip-text text-transparent">
-TaroAI
-</h1>
-<p className="text-purple-200">Мистические расклады с AI</p>
-</div>
-
-```
-    <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <Sparkles className="w-5 h-5" />
-        Выберите расклад
-      </h2>
-      
-      <div className="space-y-3">
-        {spreads.map(spread => {
-          const Icon = spread.icon;
-          return (
-            <button
-              key={spread.id}
-              onClick={() => {
-                setSelectedSpread(spread);
-                setView('question');
-              }}
-              className="w-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 hover:from-purple-500/50 hover:to-pink-500/50 rounded-2xl p-4 text-left transition-all transform hover:scale-105"
-            >
-              <div className="flex items-center gap-3">
-                <Icon className="w-6 h-6 text-yellow-300" />
-                <div className="flex-1">
-                  <div className="font-semibold">{spread.name}</div>
-                  <div className="text-sm text-purple-200">{spread.description}</div>
-                </div>
-                <div className="text-2xl text-yellow-300">{spread.cards} 🃏</div>
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Sparkles />
+                Выберите расклад
+              </h2>
+              
+              <div className="space-y-3">
+                {spreads.map(spread => {
+                  const Icon = spread.icon;
+                  return (
+                    <button
+                      key={spread.id}
+                      onClick={() => {
+                        setSelectedSpread(spread);
+                        setView('question');
+                      }}
+                      className="w-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 hover:from-purple-500/50 hover:to-pink-500/50 rounded-2xl p-4 text-left transition-all transform hover:scale-105"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon />
+                        <div className="flex-1">
+                          <div className="font-semibold">{spread.name}</div>
+                          <div className="text-sm text-purple-200">{spread.description}</div>
+                        </div>
+                        <div className="text-2xl text-yellow-300">{spread.cards} 🃏</div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-
-    <div className="flex gap-3">
-      <button
-        onClick={() => setView('history')}
-        className="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-4 flex items-center justify-center gap-2 hover:bg-white/20 transition"
-      >
-        <History className="w-5 h-5" />
-        История
-      </button>
-      <button
-        onClick={() => setView('learn')}
-        className="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-4 flex items-center justify-center gap-2 hover:bg-white/20 transition"
-      >
-        <BookOpen className="w-5 h-5" />
-        Обучение
-      </button>
-    </div>
-  </div>
-</div>
-```
-
-);
-
-// Экран вопроса
-const QuestionView = () => (
-<div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-<div className="max-w-md mx-auto">
-<button
-onClick={() => setView(‘home’)}
-className=“mb-6 text-purple-200 hover:text-white”
->
-← Назад
-</button>
-
-```
-    <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
-      <h2 className="text-2xl font-bold mb-4">{selectedSpread?.name}</h2>
-      <p className="text-purple-200 mb-6">{selectedSpread?.description}</p>
-
-      <label className="block mb-2 text-sm text-purple-200">
-        Ваш вопрос (необязательно)
-      </label>
-      <input
-        type="text"
-        value={userQuestion}
-        onChange={(e) => setUserQuestion(e.target.value)}
-        onBlur={(e) => e.preventDefault()}
-        placeholder="О чем хотите узнать?"
-        className="w-full bg-white/10 border border-purple-300/30 rounded-2xl p-4 text-white placeholder-purple-300/50 mb-6"
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-      />
-
-      <button
-        onClick={() => {
-          setView('reading');
-          drawCards(selectedSpread);
-        }}
-        className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 hover:from-yellow-500 hover:to-pink-600 text-white font-bold py-4 rounded-2xl transition-all transform hover:scale-105 flex items-center justify-center gap-2"
-      >
-        <Sparkles className="w-5 h-5" />
-        Вытянуть карты
-      </button>
-    </div>
-  </div>
-</div>
-```
-
-);
-
-// Экран гадания
-const ReadingView = () => (
-<div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-<div className="max-w-md mx-auto">
-<button
-onClick={() => {
-setView(‘home’);
-setDrawnCards([]);
-setInterpretation(’’);
-setUserQuestion(’’);
-}}
-className=“mb-6 text-purple-200 hover:text-white”
->
-← Новый расклад
-</button>
-
-```
-    <h2 className="text-2xl font-bold mb-6 text-center">{selectedSpread?.name}</h2>
-
-    {/* Карты */}
-    <div className="flex justify-center gap-4 mb-6 flex-wrap">
-      {Array.from({ length: selectedSpread?.cards || 0 }).map((_, idx) => (
-        <div
-          key={idx}
-          className={`w-32 h-48 rounded-2xl flex items-center justify-center text-6xl transition-all duration-500 ${
-            drawnCards[idx]
-              ? 'bg-gradient-to-br from-yellow-200 to-pink-200 scale-100'
-              : 'bg-white/10 backdrop-blur-lg scale-95 animate-pulse'
-          }`}
-        >
-          {drawnCards[idx] ? drawnCards[idx].emoji : '🎴'}
-        </div>
-      ))}
-    </div>
-
-    {/* Названия карт */}
-    {drawnCards.length > 0 && (
-      <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
-        {drawnCards.map((card, idx) => (
-          <div key={idx} className="mb-3">
-            <div className="font-semibold text-yellow-300">
-              {card.emoji} {card.name}
             </div>
-            <div className="text-sm text-purple-200">{card.keywords}</div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setView('history')}
+                className="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-4 flex items-center justify-center gap-2 hover:bg-white/20 transition"
+              >
+                <History />
+                История
+              </button>
+              <button
+                onClick={() => setView('learn')}
+                className="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-4 flex items-center justify-center gap-2 hover:bg-white/20 transition"
+              >
+                <BookOpen />
+                Обучение
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
-    )}
-
-    {/* Интерпретация */}
-    {isLoading && (
-      <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 text-center">
-        <div className="animate-spin text-4xl mb-4">🔮</div>
-        <p>Карты раскрывают свои тайны...</p>
-      </div>
-    )}
-
-    {interpretation && !isLoading && (
-      <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6">
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-yellow-300" />
-          Толкование
-        </h3>
-        <div className="text-purple-100 whitespace-pre-line leading-relaxed">
-          {interpretation}
         </div>
-      </div>
-    )}
-  </div>
-</div>
-```
+      );
 
-);
+      // Экран вопроса
+      const QuestionView = () => (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={() => setView('home')}
+              className="mb-6 text-purple-200 hover:text-white"
+            >
+              ← Назад
+            </button>
 
-// Экран истории
-const HistoryView = () => (
-<div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-<div className="max-w-md mx-auto">
-<button
-onClick={() => setView(‘home’)}
-className=“mb-6 text-purple-200 hover:text-white”
->
-← Назад
-</button>
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
+              <h2 className="text-2xl font-bold mb-4">{selectedSpread?.name}</h2>
+              <p className="text-purple-200 mb-6">{selectedSpread?.description}</p>
 
-```
-    <h2 className="text-2xl font-bold mb-6">История раскладов</h2>
+              <label className="block mb-2 text-sm text-purple-200">
+                Ваш вопрос (необязательно)
+              </label>
+              <input
+                type="text"
+                value={userQuestion}
+                onChange={(e) => setUserQuestion(e.target.value)}
+                onBlur={(e) => e.preventDefault()}
+                placeholder="О чем хотите узнать?"
+                className="w-full bg-white/10 border border-purple-300/30 rounded-2xl p-4 text-white placeholder-purple-300/50 mb-6"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+              />
 
-    {history.length === 0 ? (
-      <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 text-center">
-        <div className="text-4xl mb-4">📜</div>
-        <p className="text-purple-200">Пока нет сохраненных раскладов</p>
-      </div>
-    ) : (
-      <div className="space-y-4">
-        {history.map(reading => (
-          <div key={reading.id} className="bg-white/10 backdrop-blur-lg rounded-3xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold">
-                {spreads.find(s => s.id === reading.spreadType)?.name}
-              </span>
-              <span className="text-sm text-purple-200">
-                {new Date(reading.date).toLocaleDateString('ru')}
-              </span>
+              <button
+                onClick={() => {
+                  setView('reading');
+                  drawCards(selectedSpread);
+                }}
+                className="w-full bg-gradient-to-r from-yellow-400 to-pink-500 hover:from-yellow-500 hover:to-pink-600 text-white font-bold py-4 rounded-2xl transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <Sparkles />
+                Вытянуть карты
+              </button>
             </div>
-            <div className="flex gap-2 mb-2">
-              {reading.cards.map((card, idx) => (
-                <span key={idx} className="text-2xl">{card.emoji}</span>
+          </div>
+        </div>
+      );
+
+      // Экран гадания
+      const ReadingView = () => (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={() => {
+                setView('home');
+                setDrawnCards([]);
+                setInterpretation('');
+                setUserQuestion('');
+              }}
+              className="mb-6 text-purple-200 hover:text-white"
+            >
+              ← Новый расклад
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 text-center">{selectedSpread?.name}</h2>
+
+            <div className="flex justify-center gap-4 mb-6 flex-wrap">
+              {Array.from({ length: selectedSpread?.cards || 0 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-32 h-48 rounded-2xl flex items-center justify-center text-6xl transition-all duration-500 ${
+                    drawnCards[idx]
+                      ? 'bg-gradient-to-br from-yellow-200 to-pink-200 scale-100'
+                      : 'bg-white/10 backdrop-blur-lg scale-95 animate-pulse'
+                  }`}
+                >
+                  {drawnCards[idx] ? drawnCards[idx].emoji : '🎴'}
+                </div>
               ))}
             </div>
-            {reading.question && (
-              <p className="text-sm text-purple-200 italic">"{reading.question}"</p>
+
+            {drawnCards.length > 0 && (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6">
+                {drawnCards.map((card, idx) => (
+                  <div key={idx} className="mb-3">
+                    <div className="font-semibold text-yellow-300">
+                      {card.emoji} {card.name}
+                    </div>
+                    <div className="text-sm text-purple-200">{card.keywords}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 text-center">
+                <div className="animate-spin text-4xl mb-4">🔮</div>
+                <p>Карты раскрывают свои тайны...</p>
+              </div>
+            )}
+
+            {interpretation && !isLoading && (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Sparkles />
+                  Толкование
+                </h3>
+                <div className="text-purple-100 whitespace-pre-line leading-relaxed">
+                  {interpretation}
+                </div>
+              </div>
             )}
           </div>
-        ))}
-      </div>
-    )}
-  </div>
-</div>
-```
+        </div>
+      );
 
-);
+      // Экран истории
+      const HistoryView = () => (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={() => setView('home')}
+              className="mb-6 text-purple-200 hover:text-white"
+            >
+              ← Назад
+            </button>
 
-// Экран обучения
-const LearnView = () => (
-<div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
-<div className="max-w-md mx-auto">
-<button
-onClick={() => setView(‘home’)}
-className=“mb-6 text-purple-200 hover:text-white”
->
-← Назад
-</button>
+            <h2 className="text-2xl font-bold mb-6">История раскладов</h2>
 
-```
-    <h2 className="text-2xl font-bold mb-6">Старшие Арканы</h2>
+            {history.length === 0 ? (
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 text-center">
+                <div className="text-4xl mb-4">📜</div>
+                <p className="text-purple-200">Пока нет сохраненных раскладов</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {history.map(reading => (
+                  <div key={reading.id} className="bg-white/10 backdrop-blur-lg rounded-3xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold">
+                        {spreads.find(s => s.id === reading.spreadType)?.name}
+                      </span>
+                      <span className="text-sm text-purple-200">
+                        {new Date(reading.date).toLocaleDateString('ru')}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      {reading.cards.map((card, idx) => (
+                        <span key={idx} className="text-2xl">{card.emoji}</span>
+                      ))}
+                    </div>
+                    {reading.question && (
+                      <p className="text-sm text-purple-200 italic">"{reading.question}"</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
 
-    <div className="space-y-3">
-      {tarotCards.map(card => (
-        <div key={card.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">{card.emoji}</span>
-            <div className="flex-1">
-              <div className="font-semibold">{card.name}</div>
-              <div className="text-sm text-purple-200">{card.keywords}</div>
+      // Экран обучения
+      const LearnView = () => (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6">
+          <div className="max-w-md mx-auto">
+            <button
+              onClick={() => setView('home')}
+              className="mb-6 text-purple-200 hover:text-white"
+            >
+              ← Назад
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6">Старшие Арканы</h2>
+
+            <div className="space-y-3">
+              {tarotCards.map(card => (
+                <div key={card.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-4xl">{card.emoji}</span>
+                    <div className="flex-1">
+                      <div className="font-semibold">{card.name}</div>
+                      <div className="text-sm text-purple-200">{card.keywords}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</div>
+      );
+
+      return (
+        <div className="font-sans">
+          {view === 'home' && <HomeView />}
+          {view === 'question' && <QuestionView />}
+          {view === 'reading' && <ReadingView />}
+          {view === 'history' && <HistoryView />}
+          {view === 'learn' && <LearnView />}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<TarotApp />, document.getElementById('root'));
+</script>
 ```
 
-);
-
-return (
-<div className="font-sans">
-{view === ‘home’ && <HomeView />}
-{view === ‘question’ && <QuestionView />}
-{view === ‘reading’ && <ReadingView />}
-{view === ‘history’ && <HistoryView />}
-{view === ‘learn’ && <LearnView />}
-</div>
-);
-};
-        ReactDOM.render(<TarotApp />, document.getElementById('root'));
-    </script>
 </body>
 </html>
