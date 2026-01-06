@@ -571,5 +571,26 @@
                 '<div class="history-spread">' + reading.spreadName + '</div>' +
                 '<div class="history-date">' + dateStr + '</div></div>' +
                 '<div class="history-cards">' + reading.cards.map(c => c.emoji).join(' ') + '</div>' +
-                (reading.question ? '<div class="history-question">"' + reading.question + '"</div
+                (reading.question ? '<div class="history-question">"' + reading.question + '"</div>' : '') +
+                '</div>';
+        }).join('');
+    }
+    
+    function showLearn() {
+        hideAllScreens();
+        document.getElementById('learn-screen').classList.remove('hidden');
+        const learnList = document.getElementById('learn-list');
+        learnList.innerHTML = tarotCards.map(card => 
+            '<div class="learn-item">' +
+            '<div class="learn-emoji">' + card.emoji + '</div>' +
+            '<div class="learn-info">' +
+            '<div class="learn-name">' + card.name + '</div>' +
+            '<div class="learn-keywords">' + card.keywords + '</div>' +
+            '</div></div>'
+        ).join('');
+    }
+</script>
 ```
+
+</body>
+</html>
